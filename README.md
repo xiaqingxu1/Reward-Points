@@ -6,7 +6,7 @@ Simple Flask app that accepts HTTP requests and returns responses based on condi
 * Payer submit transactions. 
   * Each transaction should include `payer`, `points`,`timestamp` information.
   * Transactions are not necessarily added in the order of their transaction timestamps. 
-  * A transaction will be added to `positiveTransactions` list or `negativeTransactions` list based on positive or negative points involved.
+  * A transaction will be added to `earnings` list (or `withdraws` list) if positive points (or negative points).
   * Transactions are stored in memory on the back end.
   * A payer's total points can go below 0 in the middle of adding transactions, but it won't be below 0 after adding all transactions.
 * The user can `spend` points.
@@ -38,8 +38,8 @@ Simple Flask app that accepts HTTP requests and returns responses based on condi
 
 ## Making API calls
 **NOTE** Because this web service doesn't use any durable data store, there will be no data in the backend whenever the sever is started, which means:
-* The user will initially have a zero balance.
-* Accounts, positiveTransactions, negativeTransactions will be empty.
+* The user will initially have a `balance` of zero.
+* `Accounts`, `earnings`, `withdraws` will be empty.
 
 From any curl tool such as Postman or a basic shell curl command, make requests to http://localhost:5000/ENDPOINT where ENDPOINT is one of the routes described below. For POST requests, such as adding a transaction or spending points, use JSON schema.
 
@@ -57,14 +57,14 @@ Currently only the following routes are implemented:
     Example JSON: { "payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z" }
     ```
 
-    **NOTE:** Transactions with positive points are added to the `positiveTransaction` and inserted at the right place based on timestamp (later -> early). Transactions with negative points are added to the `negativeTransaction`, these transactions are later used to negate the positive points when a spending call is made. 
+    **NOTE:** Transactions with positive points are added to `earnings` and inserted at the right place based on timestamp (later -> early). Transactions with negative points are added to `withdraws`, and these transactions are used to negate the positive points before spending. 
 
 3. Spend points: `/spend_points`
     ```
     POST http://localhost:5000/spend_points
     Example JSON: { "points": 5000 }
     ```
-    **NOTE:** Spending calls uses the earliest earned positive points from the `positiveTransactions` list. But before that, we will first check if the same payer appears in the  `negativeTransaction` list (meaning payer withdraws points). If they do, full/part of the positive points are used to negate the nagetive points. Any remaining positive points will be used for spending. 
+    **NOTE:** Spending uses positive points from the earliest transaction in `earnings` list. But before that, we will first check if the same payer appears in the  `withdraws` list (meaning payer withdraws points). If they do, full/part of the positive points are used to negate the nagetive points. Any remaining positive points will be used for spending. 
 
 
 ### Running Tests
