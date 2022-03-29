@@ -2,10 +2,12 @@
 Simple Flask app that accepts HTTP requests and returns responses based on conditions outlined in the section below. 
 
 ## Premise
-* There is a user that can have `points` in their account from various `payers`.
-* Payer submit transactions, which are splited into `positiveTransactions` list and `negativeTransactions` list based on positive or negative points involved.
+* Every user has an `accounts` that stores `points` in their account from various `payers`.
+* Payer submit transactions. 
+  * Each transaction should include `payer`, `points`,`timestamp` information.
+  * Transactions are not necessarily added in the order of their transaction timestamps. 
+  * A transaction will be added to `positiveTransactions` list or `negativeTransactions` list based on positive or negative points involved.
   * Transactions are stored in memory on the back end.
-  * Transactions are not necessarily added in the order of their transaction timestamps.
   * A payer's total points can go below 0 in the middle of adding transactions, but it won't be below 0 after adding all transactions.
 * The user can `spend` points.
   * The user's total points can't go below 0.
