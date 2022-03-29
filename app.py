@@ -6,8 +6,8 @@ app.config['JSON_SORT_KEYS'] = False
 
 balance = 0  # total points
 accounts = {}  # dictionary containing 'payer'-'points' pairs
-positiveTransactions = []   # list of all transanctions with positive points 
-negativeTransactions = []   # list of transactins with negative points(used to withdraw positve points from same payer)
+earnings = []   # list of all transanctions with positive points 
+withdraws = []   # list of transactins with negative points(used to withdraws positve points from same payer)
 
 content_header = {}  
 content_header["Content-type"] = "application/json" 
@@ -29,7 +29,7 @@ def add_transactions():
     Adding one transaction will cause THREE updates: 
     1.balance 
     2.accounts 
-    3.positiveTransactions and negativeTransaction 
+    3.earnings and withdraws 
     """    
     global balance 
     data = request.get_json(force=True)  
@@ -46,34 +46,34 @@ def add_transactions():
     else:
         accounts[payer] = points
 
-    # updating negativeTransanctions and positiveTransactions, sorting positiveTransanctions by datetime
+    # updating withdraws and earnings, sorting earnings by timestamp
     if points < 0: 
-        negativeTransactions.append([payer, points, datetime_obj])
+        withdraws.append([payer, points, datetime_obj])
     else: 
-        low, high = 0, len(positiveTransactions)
+        low, high = 0, len(earnings)
         while low < high:
             mid = low + high >> 1
-            if datetime_obj > positiveTransactions[mid][2]:
+            if datetime_obj > earnings[mid][2]:
                 high = mid
             else:
                 low = mid + 1
-        positiveTransactions.insert(low, [payer, points, datetime_obj]) 
+        earnings.insert(low, [payer, points, datetime_obj]) 
 
     return ("Points added successfully!", 200, content_header)  
            
 
 @app.route('/spend_points', methods=['POST'])
 def spend_points():
-    """ Spending causes deducting points from postiveTransactions. But before deduction, 
-        one first check if the same payer withdraws points (if payer exists in negativeTransactions). 
+    """ Spending causes deducting points from earliest transaction in earnings. But before deduction, 
+        one first check if the same payer withdraws points (if payer exists in withdraws). 
     ** If yes, payer's points is used to balance out the negative points first. 
-       One premise used here: earliest earned points will be withdrawn first.  
-    ** After withdraw/if no withdraw, remaining points will then be applied towards spending.
+       One premise used here: earliest earned points from same payer will be withdrawsn first.  
+    ** After withdraws/if no withdraws, remaining points will then be applied towards spending.
     
     Spending points will cause FOUR updates: 
     1. balance 
     2. accounts 
-    3. positiveTransactions and negativeTransactions  
+    3. earnings and withdraws  
     4. spendingHistory
     """
        
@@ -95,28 +95,28 @@ def spend_points():
         # 1.updating balance
         balance -= points                          
         
-        # 2.updating positiveTransactions and negativeTransactions
+        # 2.updating earnings and withdraws
         while points > 0:
-            posiT = positiveTransactions.pop()
+            posiT = earnings.pop()
             payer = posiT[0] 
 
-            # search negativeTransactions to see if earned points was withdrawn                 
-            if negativeTransactions and payer in [t[0] for t in negativeTransactions]:
-                for negaT in negativeTransactions:
-                    if negaT[0] == payer and posiT[1] + negaT[1] < 0:   # fully withdrawn and not enough
+            # search withdraws to see if earned points should be negated                 
+            if withdraws and payer in [t[0] for t in withdraws]:
+                for negaT in withdraws:
+                    if negaT[0] == payer and posiT[1] + negaT[1] < 0:   # fully negated and not enough
                         negaT[1] += posiT[1]                           
                         break
-                    elif negaT[0] == payer and posiT[1] + negaT[1] == 0: # fully withdrawn, just enough
-                        negativeTransactions.remove(negaT)
+                    elif negaT[0] == payer and posiT[1] + negaT[1] == 0: # fully negated, just enough
+                        withdraws.remove(negaT)
                         break
-                    elif negaT[0] == payer and posiT[1] + negaT[1] > 0:  # partially withdawn, points remaining to spend
-                        negativeTransactions.remove(negaT)
+                    elif negaT[0] == payer and posiT[1] + negaT[1] > 0:  # partially negated, points remaining
+                        withdraws.remove(negaT)
                         posiT[1] += negaT[1] 
             
             if posiT[1]: 
                 if posiT[1] > points: 
                     posiT[1] -= points 
-                    positiveTransactions.append(posiT)   
+                    earnings.append(posiT)   
                     paid, points = points, 0 
                 else:                
                     paid = posiT[1]    
@@ -125,7 +125,6 @@ def spend_points():
                 # updating accounts and spendignHistory           
                 accounts[payer] -= paid                
                 spendingHistory.append({"payer": payer, "points": -paid})                  
-    print(negativeTransactions, positiveTransactions)
     return  jsonify(spendingHistory)
 
 
