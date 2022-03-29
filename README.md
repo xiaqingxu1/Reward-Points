@@ -2,7 +2,7 @@
 Simple Flask app that accepts HTTP requests and returns responses based on conditions outlined in the section below. 
 
 ## Premise
-* Every user has an `accounts` that stores `points` in their account from various `payers`.
+* Every user has an `accounts` that stores `points` per `payers`.
 * Payer submit transactions. 
   * Each transaction should include `payer`, `points`,`timestamp` information.
   * Transactions are not necessarily added in the order of their transaction timestamps. 
