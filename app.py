@@ -16,6 +16,7 @@ content_header["Content-type"] = "application/json"
 def home():
     return "Home Page"
 
+
 @app.route('/check_balance')
 def check_balance(): 
     return jsonify(accounts)
@@ -58,7 +59,7 @@ def add_transactions():
             else:
                 low = mid + 1
         earnings.insert(low, [payer, points, datetime_obj]) 
-    print(earnings)
+   
     return ("Points added successfully!", 200, content_header)  
            
 
