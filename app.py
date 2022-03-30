@@ -68,7 +68,7 @@ def spend_points():
     """ Spending causes deducting points from earliest transaction in earnings. But before deduction, 
         one first check if the same payer withdraws points (if payer exists in withdraws). 
     ** If yes, payer's points is used to balance out the negative points first. 
-       One premise used here: earliest earned points from same payer will be withdrawsn first.  
+       One premise used here: earliest earned points from same payer will be withdrawn first.  
     ** After withdraws/if no withdraws, remaining points will then be applied towards spending.
     
     Spending points will cause FOUR updates: 
