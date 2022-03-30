@@ -115,7 +115,7 @@ def spend_points():
                     elif withdraw[0] == payer and earning[1] + withdraw[1] > 0:  # partially negated, points remaining
                         withdraws.remove(withdraw)
                         earning[1] += withdraw[1] 
-            # if earning stil have points left with or without negating
+            # if earning stil has points left with or without negating
             if earning[1]: 
                 if earning[1] > points: 
                     earning[1] -= points 
