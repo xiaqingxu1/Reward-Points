@@ -58,7 +58,7 @@ def add_transactions():
             else:
                 low = mid + 1
         earnings.insert(low, [payer, points, datetime_obj]) 
-
+    print(earnings)
     return ("Points added successfully!", 200, content_header)  
            
 
@@ -97,34 +97,36 @@ def spend_points():
         
         # 2.updating earnings and withdraws
         while points > 0:
-            posiT = earnings.pop()
-            payer = posiT[0] 
+            earning = earnings.pop()
+            payer = earning[0] 
 
             # search withdraws to see if earned points should be negated                 
             if withdraws and payer in [t[0] for t in withdraws]:
-                for negaT in withdraws:
-                    if negaT[0] == payer and posiT[1] + negaT[1] < 0:   # fully negated and not enough
-                        negaT[1] += posiT[1]                           
+                for withdraw in withdraws:
+                    if withdraw[0] == payer and earning[1] + withdraw[1] < 0:   # fully withdrawed and not enough
+                        earning[1] = 0
+                        withdraw[1] += earning[1]                           
                         break
-                    elif negaT[0] == payer and posiT[1] + negaT[1] == 0: # fully negated, just enough
-                        withdraws.remove(negaT)
+                    elif withdraw[0] == payer and earning[1] + withdraw[1] == 0: # fully negated, just enough
+                        earning[1] = 0
+                        withdraws.remove(withdraw)
                         break
-                    elif negaT[0] == payer and posiT[1] + negaT[1] > 0:  # partially negated, points remaining
-                        withdraws.remove(negaT)
-                        posiT[1] += negaT[1] 
-            
-            if posiT[1]: 
-                if posiT[1] > points: 
-                    posiT[1] -= points 
-                    earnings.append(posiT)   
+                    elif withdraw[0] == payer and earning[1] + withdraw[1] > 0:  # partially negated, points remaining
+                        withdraws.remove(withdraw)
+                        earning[1] += withdraw[1] 
+            # if earning stil have points left with or without negating
+            if earning[1]: 
+                if earning[1] > points: 
+                    earning[1] -= points 
+                    earnings.append(earning)   
                     paid, points = points, 0 
                 else:                
-                    paid = posiT[1]    
-                    points -= posiT[1]       
+                    paid = earning[1]    
+                    points -= earning[1]       
 
                 # updating accounts and spendignHistory           
                 accounts[payer] -= paid                
-                spendingHistory.append({"payer": payer, "points": -paid})                  
+                spendingHistory.append({"payer": payer, "points": -paid})  
     return  jsonify(spendingHistory)
 
 
