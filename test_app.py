@@ -60,20 +60,3 @@ def test_check_balance(client):
     data = json.loads(response.get_data())
     assert response.status_code == 200
     assert data == {"DANNON": 1000, "UNILEVER": 0, "MILLER COORS": 5300}
-
-
-
-
-
-
-
-
-
-# with app.test_client() as c:
-#     response = c.get('/some/path/that/exists')
-#     self.assertEquals(response.status_code, 200)
-
-
-
-# if __name__ == '__main__':
-#     unittest.main()
