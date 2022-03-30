@@ -39,7 +39,7 @@ Simple Flask app that accepts HTTP requests and returns responses based on condi
 ## Making API calls
 **NOTE** Because this web service doesn't use any durable data store, there will be no data in the backend whenever the sever is started, which means:
 * The user will initially have a `balance` of zero.
-* `Accounts`, `earnings`, `withdraws` will be empty.
+* `accounts`, `earnings`, `withdraws` will be empty.
 
 From any curl tool such as Postman or a basic shell curl command, make requests to http://localhost:5000/ENDPOINT where ENDPOINT is one of the routes described below. For POST requests, such as adding a transaction or spending points, use JSON schema.
 
