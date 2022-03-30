@@ -11,7 +11,7 @@ def client(app):
     return app.test_client() 
 
 def test_add_transactions(client):
-    url = "/add_transactions"
+    url = "http://localhost:5000/add_transactions"
 
     data = {"payer": "DANNON", "points": 1000, "timestamp": "2020-11-02T14:00:00Z"}
     response = client.post(url, json = data)
@@ -35,7 +35,7 @@ def test_add_transactions(client):
 
 
 def test_spend_points(client):
-    url = "http://127.0.0.1:5000/spend_points"
+    url = "http://localhost:5000/spend_points"
     data = { "points": -3}
     response = client.post(url, json = data)
     assert response.status_code == 400
